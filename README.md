@@ -1,1 +1,3 @@
-# Sudoku game in Java
+# Sudoku
+
+Sudoku game built with Java
