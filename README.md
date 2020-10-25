@@ -1,3 +1,3 @@
 # Sudoku
 
-Sudoku game built with Java
+Sudoku game built with Java and JavaFX 
