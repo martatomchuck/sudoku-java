@@ -6,19 +6,18 @@ import java.io.Serializable;
 
 /**
  * Gra Sudoku zbudowana jest w oparciu o tablicę dwuwymiarową, złożoną z 9 wierszy i 9 kolumn (zawiera 9x9 = 81 pól)
- *
  */
 
-// Serializable ?
+// Klasa implementuje Serializable - do zapisywania na dysku współrzędnych planszy
 public class SudokuGame implements Serializable {
-//    enum ze stanem gry
+    // Enum ze stanem gry
     private final GameState gameState;
-//    aktualna plansza e formie dwuwymiarowej tablicy
+    // Aktualna plansza e formie dwuwymiarowej tablicy
     private final int[][] gridState;
 
 
-// Plansza składa się z 9 kwadratów; współrzędne siatki, na której zbudowana jest plansza oznaczone są literami x i y (oznaczonymi od 0 do 8)
-
+    // Plansza składa się z 9 kwadratów; współrzędne siatki, na której zbudowana jest plansza
+    // oznaczone są literami x i y (oznaczonymi od 0 do 8)
     public static final int GRID = 9;
 
     /**
@@ -48,12 +47,12 @@ public class SudokuGame implements Serializable {
         this.gridState = gridState;
     }
 
-//    zwraca stan gry
+//    Zwraca stan gry
     public GameState getGameState() {
         return gameState;
     }
 
-//    zwraca kopię planszy, żeby móc porównac z nową wersją po zmianie
+//    Zwraca kopię planszy, żeby móc porównac z nową wersją po zmianie
     public int[][] getCopyOfGridState() {
         return SudokuTools.copyToNewArray(gridState);
     }

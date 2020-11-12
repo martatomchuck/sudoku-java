@@ -3,9 +3,7 @@ package sudoku.gameLogic;
 public class SudokuTools {
 
     /**
-     * Copy the values from one sudoku grid into another
-     *
-     * Note: O(n^2) Runtime Complexity
+     * Kopiowanie wartości z planszy
      * @param oldArray
      * @param newArray
      */
@@ -18,8 +16,7 @@ public class SudokuTools {
     }
 
     /**
-     * Creates and returns a new Array with the same values as the inputted Array.
-     *
+     * Tworzenie nowej planszy ze skopiowanych wartości
      * @param oldArray
      */
     public static int[][] copyToNewArray(int[][] oldArray) {
@@ -29,7 +26,6 @@ public class SudokuTools {
                 newArray[xIndex][yIndex] = oldArray[xIndex][yIndex];
             }
         }
-
         return newArray;
     }
 }

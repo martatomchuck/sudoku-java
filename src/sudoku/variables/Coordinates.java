@@ -3,8 +3,8 @@ package sudoku.variables;
 import java.util.Objects;
 
 /**
- * Wprowadzenie współrzędnych x i y
- * Przechowują lokalizację pojedynczego pola na planszy (mapie współrzędnych)
+ * Wprowadzenie współrzędnych x i y na dwuwymiarowej planszy gry
+ * Współrzędne przechowują lokalizację pojedynczego pola na planszy (mapie współrzędnych)
  */
 public class Coordinates {
     private final int x;
@@ -15,7 +15,7 @@ public class Coordinates {
         this.y = y;
     }
 
-//    Metody zwracające x i y
+    // Metody zwracające x i y
     public int getX() {
         return x;
     }
@@ -23,6 +23,7 @@ public class Coordinates {
         return y;
     }
 
+    // Nadpisanie metod HashMapy
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

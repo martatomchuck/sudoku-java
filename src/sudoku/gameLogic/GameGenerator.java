@@ -15,44 +15,41 @@ class GameGenerator {
     }
 
     /**
-     * 1. Generate a new 9x9 2D Array.
-     * 2. For each value in the range 1..9, allocate that value 9 times based on the following constraints:
-     * - A Random coordinate on the grid is selected. If it is empty, a Random value is allocated.
-     * - The resulting allocation must not produce invalid rows, columns, or squares.
-     * - If the allocation does produce an invalid game
-     *
-     * @return
+     * 1. Wygeneruj nową tablicę dwuwymiarową 9x9
+     * 2. Ułóż Sudoku - dla każdej wartości z przedziału 1..9, rozłóż tę wartość po tablicy 9 razy według wytycznych:
+     * - z planszy wybierana jest losowa współrzędna; jeśli jest pusta - losowa wartość jest przypisywana
+     * - losowa alokacja nie może generować niepoprawności wiersza, kolumny lub kwadratu
      */
     private static int[][] getSolvedGame() {
-        // generator liczb losowych
+        // Generator liczb losowych
         Random random = new Random(System.currentTimeMillis());
 
-        // Tworzymy nową planszę bazującą na zmiennej GRID
+        // Tworzymy nową planszę bazującą na zmiennej GRID = 9
         int[][] newGrid = new int[GRID][GRID];
 
-        // Value oznacza możliwą wartość (od 1 do 9) do wpisania w danym polu. Each value must be allocated 9 times.
+        // Value oznacza możliwą wartość (od 1 do 9) do wpisania w danym polu
+        // Każda wartość może być ulokowana maksymalnie 9 razy
         for (int value = 1; value <= GRID; value++) {
 
-            // liczba alokacji, czyli przypisania danej wartości (każda wartość może być przypisana maksymalnie 9 razy)
+            // Liczba alokacji, czyli przypisania danej wartości
             int allocations = 0;
 
-            //If too many allocation attempts are made which end in an invalid game, we grab the most recent
-            //allocations stored in the List below, and reset them all to 0 (empty).
+            // Jeśli zbyt dużo alokacji kończy się niepoprawnym rozwiązaniej gry
+            // ostatnia alokacja ustawiana jest na 0 (pusta)
             int interrupt = 0;
 
-            //Keep track of what has been allocated in the current frame of the loop
+            // śledzenie co zostało zalokowane w danej pętli
             List<Coordinates> allocTracker = new ArrayList<>();
 
-            //As a failsafe, if we keep rolling back allocations on the most recent frame, and the game still
-            //keeps breaking, after 500 times we reset the board entirely and start again.
+            // Po 500 próbach alokacji plansza jest całkowicie resetowana i algorytm próbuje od nowa
             int attempts = 0;
 
-            // każda plansza przyjmuje maksymalnie 9 jedynek, 9 dwójek itd. (maksymalnie 9 alokacji)
+            // Każda plansza przyjmuje maksymalnie 9 jedynek, 9 dwójek itd. (maksymalnie 9 alokacji)
             while (allocations < GRID) {
 
-                // liczba prób = 200; po 200 próbach zerujemy liczbę alokacji
+                // Liczba prób = 200; po 200 próbach zerujemy liczbę alokacji
                 if (interrupt > 200) {
-                    // współrzędne, po każdej alokacji, przypisywane są do allocTrackera
+                    // Współrzędne, po każdej alokacji, przypisywane są do allocTrackera
                     allocTracker.forEach(coord -> {
                         newGrid[coord.getX()][coord.getY()] = 0;
                     });
@@ -62,7 +59,7 @@ class GameGenerator {
                     allocTracker.clear();
                     attempts++;
 
-                    // czyszczenie całej gry po 500 nieudanych próbach
+                    // Czyszczenie całej gry po 500 nieudanych próbach alokacji
                     if (attempts > 500) {
                         clearArray(newGrid);
                         attempts = 0;
@@ -76,12 +73,12 @@ class GameGenerator {
                 if (newGrid[xCoordinate][yCoordinate] == 0) {
                     newGrid[xCoordinate][yCoordinate] = value;
 
-                    //if value results in an invalid game, then re-assign that element to 0 and try again
+                    // Zeruje element i zaczyna od nowa
                     if (GameLogic.sudokuIsInvalid(newGrid)) {
                         newGrid[xCoordinate][yCoordinate] = 0;
                         interrupt++;
                     }
-                    //otherwise, indicate that a value has been allocated, and add it to the allocation tracker.
+                    // W przeciwnym wypadku dodaje alokację do trackera
                     else {
                         allocTracker.add(new Coordinates(xCoordinate, yCoordinate));
                         allocations++;
@@ -99,7 +96,7 @@ class GameGenerator {
      * to attempt to re-solve the problem.
      *
      * 1. Copy values of solvedGame to a new Array (make into a helper)
-     * 2. Remove 40 Values randomly from the new Array.
+     * 2. Remove 20 Values randomly from the new Array.
      * 3. Test the new Array for solvablility.
      * 4a. Solveable -> return new Array
      * 4b. return to step 1
@@ -111,16 +108,15 @@ class GameGenerator {
 
         boolean solvable = false;
 
-        //note: not actually solvable until the algorithm below finishes!
         int[][] solvableArray = new int[GRID][GRID];
 
         while (solvable == false){
 
-            //Take values from solvedGame and write to new unsolved; i.e. reset to initial state
+            // Zresetuj stan
             SudokuTools.copySudokuArrayValues(solvedGame, solvableArray);
 
-            // usuń 20 elementów z wygenerowanej planszy (to będą pola puste wypełniane przez użytkownika)
-            // można w łatwy sposób zwiększyć trudność zwiększając tę liczbę, np. do 60
+            // Usuń 20 elementów z wygenerowanej planszy (to będą pola puste wypełniane przez użytkownika)
+            // Można w łatwy sposób zwiększyć poziom trudności gry zwiększając tę liczbę, np. do 60
             int index = 0;
             while (index < 20) {
                 int xCoordinate = random.nextInt(GRID);
@@ -134,15 +130,13 @@ class GameGenerator {
 
             int[][] toBeSolved = new int[GRID][GRID];
             SudokuTools.copySudokuArrayValues(solvableArray, toBeSolved);
-            //check if result is solvable
+            // sprawdź czy wynik jest rozwiązywalny
             solvable = SudokuSolver.puzzleIsSolvable(toBeSolved);
         }
-
         return solvableArray;
     }
 
-
-//    Czyszczenie pól na planszy (ustawienie wszystkich współrzędnych na 0)
+    // Czyszczenie pól na planszy (ustawienie wszystkich współrzędnych na 0)
     private static void clearArray(int[][] newGrid) {
         for (int xIndex = 0; xIndex < GRID; xIndex++) {
             for (int yIndex = 0; yIndex < GRID; yIndex++) {
@@ -150,5 +144,4 @@ class GameGenerator {
             }
         }
     }
-
 }

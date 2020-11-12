@@ -2,17 +2,14 @@ package sudoku.gameLogic;
 
 import java.io.*;
 
-
 /**
- * JSON is a simple language which is commonly used for storage and data transfer in Desktop, Web, and Mobile
- * programming. By having one simple language which can be understood by a wide variety of different platforms and
- * operating systems, this makes life easier for us programmers to have our programs communicate with each other, and
- * work on more devices.
+ * Pobieranie stanu gry z pliku zapisanego na dysku
  */
 public class LocalStorage implements Storage {
 
+    // Zapisanie danych gry do pliku skąd system wyciągnie dane przy aktualizowaniu gry
     private static File GAME_DATA = new File(
-            System.getProperty("user.home"),
+              System.getProperty("user.home"),
             "gamedata.txt"
     );
 
@@ -20,13 +17,13 @@ public class LocalStorage implements Storage {
     public void updateGameData(SudokuGame game) throws IOException {
         try {
 
-
-            FileOutputStream fileOutputStream =
-                    new FileOutputStream(GAME_DATA);
+            // Sciąga dane z pliku (streaming data)
+            FileOutputStream fileOutputStream = new FileOutputStream(GAME_DATA);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(game);
             objectOutputStream.close();
         } catch (IOException e) {
+            // Jeśli nie ma danych w storage to zwraca wyjątek
             throw new IOException("Unable to access Game Data");
         }
     }

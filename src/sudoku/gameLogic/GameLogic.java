@@ -1,7 +1,5 @@
 package sudoku.gameLogic;
 
-//Collection of static functions which may be used to determine events and new Game states.
-
 import sudoku.variables.GameState;
 import sudoku.variables.Rows;
 
@@ -10,9 +8,8 @@ import java.util.*;
 import static sudoku.gameLogic.SudokuGame.GRID;
 
 /**
-* Q: Why isn't this a class hidden behind an interface?
-* A: It requires no external libraries, nor do I ever plan to switch to using external libraries.
-*/
+ * Klasa zawierająca statyczne funkcje używane do walidacji gry i zmiany stanu gry (ACTIVE, COMPLETE, INCORRECT)
+ */
 public class GameLogic {
 
   public static SudokuGame getNewGame() {
@@ -23,36 +20,35 @@ public class GameLogic {
   }
 
   /**
-   * Check to see if the incoming state (what the values of each square happen to be) of the game is either Active
-   * (i.e. Unsolved) or Complete (i.e. Solved).
+   * Sprawdzenie czy gra jest ukończona
+   * 1. wszystkie pola są wypełnione
+   * 2. plansza jest wypełniona poprawnie
    *
-   * @param grid A virtual representation of a sudoku puzzle, which may or may not be solved.
-   * @return Either GameState.Active or GameState.Complete, based on analysis of solvedSudoku.
+   * @param grid
+   * @return GameState.Active, GameState.Complete, GameState.Incorrect w zależności od wyniku gry
    * <p>
-   * Rules:
-   * - A number may not be repeated among Rows, e.g.:
+   * Zasady:
+   * - Cyfry w jednym rzędzie nie mogą się powtarzać, e.g.:
    * - [0, 0] == [0-8, 1] not allowed
    * - [0, 0] == [3, 4] allowed
-   * - A number may not be repeated among Columns, e.g.:
+   * - Cyfry w jednej kolumnie nie mogą się powtarzać, e.g.:
    * - [0-8, 1] == [0, 0] not allowed
    * - [0, 0] == [3, 4] allowed
-   * - A number may not be repeated within respective GRID_BOUNDARYxGRID_BOUNDARY regions within the Sudoku Puzzle
+   * - Cyfry w jednym kwadracie nie mogą się powtarzać, e.g.:
    * - [0, 0] == [1, 2] not allowed
    * - [0, 0] == [3, 4] allowed
    */
   public static GameState checkForCompletion(int[][] grid) {
-      if (!tilesAreNotFilled(grid) && sudokuIsInvalid(grid)) return GameState.WRONG;
+      if (!tilesAreNotFilled(grid) && sudokuIsInvalid(grid)) return GameState.INCORRECT;
       if (sudokuIsInvalid(grid)) return GameState.ACTIVE;
       if (tilesAreNotFilled(grid)) return GameState.ACTIVE;
       return GameState.COMPLETE;
   }
 
   /**
-   * Traverse all tiles and determine if any all are not 0.
-   * Note: GRID = GRID
-   *
+   * Przechodzi po wszystkich polach i sprawdza czy jest jakieś pole z wartością 0 (puste)
+   * GRID = GRID
    * @param grid
-   * @return
    */
   public static boolean tilesAreNotFilled(int[][] grid) {
       for (int xIndex = 0; xIndex < GRID; xIndex++) {
@@ -64,11 +60,8 @@ public class GameLogic {
   }
 
   /**
-   * Checks the if the current complete or incomplete state of the game is still a valid state of a Sudoku game,
-   * relative to columns, rows, and squares.
-   *
+   * Sprawdza czy sudoku jest wypełnione poprawnie
    * @param grid
-   * @return
    */
   public static boolean sudokuIsInvalid(int[][] grid) {
       if (rowsAreInvalid(grid)) return true;
@@ -79,37 +72,31 @@ public class GameLogic {
 
 
   /**
-   * For the purposes of giving specific names to specific things, a "Square" is one of the 3x3 portions of the
-   * Sudoku puzzle, containing GRID "Tiles".
+   * "Square", czyli kwadrat, jest wycienkiem planszy złożonym z pól 3x3
+   * Na całej planszy jest 9 takich kwadratów
    * <p>
-   * Example square:
+   * Przykładowy kwadrat:
    * [0][0], [1][0], [2][0]
    * [0][1], [1][1], [2][1]
    * [0][2], [1][2], [2][2]
    * <p>
-   * How can I solve this problem elegantly?
-   * 1. Compare every single element in the array to every other element in the array? (hell no)
-   * 2. Use some dope problem solving skills to select for each square
-   * and compare them individually. (sounds much better to me)
-   * <p>
-   * Ranges:
+   * Zakresy:
    * [0][0] - [2][2], [3][0] - [5][2], [6][0] - [8][2]
    * <p>
    * [0][3] - [2][2], [3][3] - [5][5], [6][3] - [8][5]
    * <p>
    * [0][6] - [2][2], [3][0] - [5][2], [6][0] - [8][8]
    *
-   * @param grid A copy of the Sudoku Game's grid state to compare against
-   * @return
+   * @param grid kopia planszy SudokuGame
    */
   public static boolean squaresAreInvalid(int[][] grid) {
-      //top three squares
+      // 3 kwadraty górne
       if (rowOfSquaresIsInvalid(Rows.TOP, grid)) return true;
 
-      //middle three
+      // 3 kwadraty środkowe
       if (rowOfSquaresIsInvalid(Rows.MIDDLE, grid)) return true;
 
-      //bottom three
+      // 3 kwadraty dolne
       if (rowOfSquaresIsInvalid(Rows.BOTTOM, grid)) return true;
 
       return false;
@@ -125,7 +112,7 @@ public class GameLogic {
               //x THIRD = 6
               if (squareIsInvalid(0, 6, grid)) return true;
 
-              //Otherwise squares appear to be valid
+              //W innym wypadku kwadrat (square) jest poprawny
               return false;
 
           case MIDDLE:
@@ -160,13 +147,13 @@ public class GameLogic {
               xIndex++;
           }
 
-          //reset x to original value by subtracting by 2
+          // Zresetuj x do pierwotnej wartości
           xIndex -= 3;
 
           yIndex++;
       }
 
-      //if square has repeats, return true
+      // Jeśli kwadraty się powtarzają, zwróć true
       if (collectionHasRepeats(square)) return true;
       return false;
   }
@@ -198,8 +185,8 @@ public class GameLogic {
   }
 
   public static boolean collectionHasRepeats(List<Integer> collection) {
-      //count occurrences of integers from 1-GRID. If Collections.frequency returns a value greater than 1,
-      //then the square is invalid (i.e. a non-zero number has been repeated in a square)
+      // Jeśli Collections.frequency zwraca wartość większość niż 1, kwadrat jest wypełniony niepoprawnie
+      // (i.e. a wartość niezerowa jest powtórzona w kwadracie)
       for (int index = 1; index <= GRID; index++) {
           if (Collections.frequency(collection, index) > 1) return true;
       }

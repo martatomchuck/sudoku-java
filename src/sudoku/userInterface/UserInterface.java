@@ -9,7 +9,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
@@ -21,53 +20,47 @@ import javafx.stage.Stage;
 import java.util.HashMap;
 
 /**
- * Obsługa okienka z planszą do gry
- *
- * Manages the window, and displays a pop up notification when the user completes the puzzle.
+ * Wygląd i obsługa widoku z planszą do gry
+ * Wywołanie okna modalnego z notyfikacją o ukończonej grze
  */
 public class UserInterface implements UserInterfaceContract.View, EventHandler<KeyEvent> {
 
-//    okno w tle, tło dla aplikacji (z JavaFX)
+    // Okno w tle, tło dla aplikacji (z biblioteki JavaFX)
     private final Stage stage;
 
-//    div, container (z aplikacji JavaFX)
+    // Container (z biblioteki JavaFX)
     private final Group root;
 
     // ZŁA PRAKTYKA: tworzenie zmiennej dla każdego pojedynczego pola na planszy (81 zmiennych)
-    // DOBRA PRAKTYKA: HashMap i współrzędne x i y (przy pomocy funkcji HashMap wyciagamy i przechowujemy informację o współrzędnych z i y)
-    // This HashMap stores the Hash Values (a unique identifier which is automatically generated;
-    // see java.lang.object in the documentation) of each TextField by their Coordinates. When a SudokuGame
-    //is given to the updateUI method, we iterate through it by X and Y coordinates and assign the values to the
-    //appropriate TextField therein. This means we don't need to hold a reference variable for every god damn
-    //text field in this app; which would be awful.
-    //The Key (<Key, Value> -> <Coordinates, Integer>) will be the HashCode of a given InputField for ease of lookup
+    // DOBRA PRAKTYKA: HashMap i współrzędne x i y (przy pomocy funkcji HashMap współrzędne x i y mapowane są na odpowiednie pola tekstowe na planszy)
+    //
+    // <Key, Value> -> <Coordinates, Integer>
     private HashMap<Coordinates, SudokuTextField> textFieldCoordinates;
 
-//    Przekazywanie eventów (zdarzenia wywoływane przez uzytkownika)
+    // Przekazywanie eventów (zdarzenia wywoływane przez użytkownika)
     private UserInterfaceContract.EventListener listener;
 
-    //  Rozmiar okna (Y - wysokość, X - szerokość)
+    // Rozmiar okna (Y - wysokość, X - szerokość)
     private static final double WINDOW_Y = 732;
     private static final double WINDOW_X = 668;
 
-    //  Odległość pomiędzy oknem a planszą
+    // Odległość pomiędzy oknem a planszą
     private static final double BOARD_PADDING = 50;
 
-    //  Rozmiar planszy; 576 = 64 units (rozmiar pojedynczego pola) razy 9
+    // Rozmiar planszy; 576 = 64 units (rozmiar pojedynczego pola) razy 9
     private static final double BOARD_X_AND_Y = 576;
 
-    //  Kolory tła (okna i planszy)
+    // Kolory tła (okna i planszy)
     private static final Color WINDOW_BACKGROUND_COLOR = Color.rgb(230, 115, 159);
     private static final Color BOARD_BACKGROUND_COLOR = Color.rgb(241, 212, 212);
     private static final String SUDOKU = "SUDOKU";
 
     /**
-     * Stage and Group are JavaFX specific classes for modifying the UI. Think of them as containers of various UI
-     * components.
+     * Stage i Group są klasami pochodzącymi z biblioteki JavaFX do modyfikowania UI (a la kontenery dla różnych komponentów UI).
      *
-     * A HashMap is a data structure which stores key/value pairs. Rather than creating a member variable for every
-     * SudokuTextField object (all 81 of them), I instead store these references within a HashMap, and I retrieve
-     * them by using their X and Y Coordinates as a "key" (a unique value used to look something up).
+     * HashMap - struktura danych, która przechowuje pary klucz - wartość
+     * Zamiast tworzyć zmienną dla każdego pola na planszy Sudoku (łącznie 81),
+     * przechowuję w hasmapie referencje do każdego pola i wyciągam przy pomocy klucza - współrzędnych X i Y
      *
      * @param stage
      */
@@ -84,7 +77,7 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
         this.listener = listener;
     }
 
-//    User Interface components helper methods
+    // Inicjalizacja UI
     public void initializeUserInterface() {
         drawBackground(root);
         drawTitle(root);
@@ -95,18 +88,17 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
     }
 
     /**
-     * 1. Draw each TextField based on x and y values.
-     * 2. As each TextField is drawn, add it's coordinates (x, y) based on it's Hash Value to
-     * to the HashMap.
-     *
+     * KROK 1. Rysowanie pól tekstowych (inputów), w które użytkownik będzie wpisywał swoje wartości
+     * Pola tesktowe bazują na wartościach x i y
+     * KROK 2. Po wyrysowaniu pól tekstowych metoda dodaje ich współrzędne x i y do HashMapy
      * @param root
      */
     private void drawTextFields(Group root) {
-        // punkt, od którego rysowane są pola tekstowe (równy wartości paddingu)
+        // Punkt, od którego rysowane są pola tekstowe (równy wartości paddingu)
         final int xOrigin = 50;
         final int yOrigin = 50;
 
-        // o ile zwiększana jest wartość x i y po każdej iteracji
+        // O tyle zwiększana jest wartość x i y po każdej iteracji
         final int xAndYDelta = 64;
 
         // W pętli następuje rysowanie pól i przypisywanie wartości do współrzędnych x i y
@@ -127,19 +119,17 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
             for (int yIndex = 0; yIndex < 9; yIndex++) {
                 int x = xOrigin + xIndex * xAndYDelta;
                 int y = yOrigin + yIndex * xAndYDelta;
-                //draw it
+
+                // Generowanie pól
                 SudokuTextField tile = new SudokuTextField(xIndex, yIndex);
 
-                // stylowanie pól według parametrów metody styleSudokuTile
+                // Stylowanie pól według parametrów metody styleSudokuTile
                 styleSudokuTile(tile, x, y);
 
-                //Note: Note that UserInterface implements EventHandler<ActionEvent> in the class declaration.
-                //By passing "this" (which means the current instance of UserInterface), when an action occurs,
-                //it will jump straight to "handle(ActionEvent actionEvent)" down below.
                 // Nasłuchiwanie na zdarzenia wywołane przez użytkownika
                 tile.setOnKeyPressed(this);
 
-                // ustawienie wartości współrzędnych (przypisanie do klucza w hashmapie)
+                // Ustawienie wartości współrzędnych (przypisanie do klucza w hashmapie)
                 textFieldCoordinates.put(new Coordinates(xIndex, yIndex), tile);
 
                 root.getChildren().add(tile);
@@ -148,7 +138,7 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
     }
 
     /**
-     * Helper method for styling a sudoku tile number
+     * Stylowanie pojedynczego pola
      * @param tile
      * @param x
      * @param y
@@ -161,7 +151,7 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
         tile.setLayoutX(x);
         tile.setLayoutY(y);
 
-        // szerokość i wysokość pojedynczego pola 64 x 64 units
+        // Szerokość i wysokość pojedynczego pola 64 x 64
         tile.setPrefHeight(64);
         tile.setPrefWidth(64);
 
@@ -170,9 +160,13 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
 
 
     /**
-     * In order to draw the various lines that make up the Sudoku grid, we use a starting x and y offset
-     * value (remember, x grows positively from left to right, and y grows positively from top to bottom).
-     * Each square is meant to be 64x64 units, so we add that number each time a
+     * Metoda służąca wyrysowaniu linii na planszy
+     *
+     * Wartości x i y stanowią punkt startowy:
+     * x rośnie z lewej do prawej
+     * y rośnie z dołu na dół
+     *
+     * Każde pole ma wielkość 64x64, dlatego w każdej iteracji dodawana jest liczba 64
      * @param root
      */
     private void drawGridLines(Group root) {
@@ -215,10 +209,9 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
     }
 
     /**
-     * Convenience method to reduce repetitious code.
-     *
+     * Optymalizacja kodu rysującego linie
      * X, Y, Height, Width,
-     * @return A Rectangle to specification
+     * @return line
      */
     public Rectangle getLine(double x, double y, double height, double width){
         Rectangle line = new Rectangle();
@@ -270,9 +263,7 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
         root.getChildren().add(title);
     }
 
-    /**
-     * Za każdym razem, gdy użytkownik wpisuje wartość, interface użytkownika aktualizowany jest odpowiednio
-     */
+    // Za każdym razem, gdy użytkownik wpisuje wartość w danym polu, aktualizowany jest odpowiednio interface użytkownika
     @Override
     public void updateSquare(int x, int y, int input) {
         SudokuTextField tile = textFieldCoordinates.get(new Coordinates(x, y));
@@ -283,12 +274,12 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
         tile.textProperty().setValue(value);
     }
 
-    // aktualizacja planszy o wartość wpisaną przez użytkownika
+    // Aktualizacja planszy o wartość wpisaną przez użytkownika
     @Override
     public void updateBoard(SudokuGame game) {
         for (int xIndex = 0; xIndex < 9; xIndex++) {
             for (int yIndex = 0; yIndex < 9; yIndex++) {
-                TextField tile = textFieldCoordinates.get(new Coordinates(xIndex, yIndex));
+                javafx.scene.control.TextField tile = textFieldCoordinates.get(new Coordinates(xIndex, yIndex));
 
                 String value = Integer.toString(
                         game.getCopyOfGridState()[xIndex][yIndex]
@@ -297,8 +288,7 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
                 if (value.equals("0")) value = "";
                 tile.setText( value );
 
-                //If a given tile has a non-zero value and the state of the game is GameState.NEW, then mark
-                //the tile as read only. Otherwise, ensure that it is NOT read only.
+                // Jeśli dane pole ma wartość niezerową i stan gry = NEW, zaznacz pole jako niemożliwe do edycji
                 if (game.getGameState() == GameState.NEW){
                     if (value.equals("")) {
                         tile.setStyle("-fx-opacity: 1;");
@@ -312,7 +302,7 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
         }
     }
 
-    // Komunikat o wygranej na zakończenie gry
+    // Komunikat o zakończonej grze (wywołanie okna dialogowego)
     @Override
     public void showDialog(String message) {
         Alert dialog = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.OK);
@@ -321,7 +311,7 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
         if (dialog.getResult() == ButtonType.OK) listener.onDialogClick();
     }
 
-    // Komunikat o błędzie
+    // Komunikat o błędzie (wywołanie okna dialogowego)
     @Override
     public void showError(String message) {
         Alert dialog = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
@@ -341,23 +331,22 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
                     || event.getText().equals("7")
                     || event.getText().equals("8")
                     || event.getText().equals("9")
-            ) { // ustawianie wartości wpisanej przez użytkownika
+            ) { // Ustawianie wartości wpisanej przez użytkownika
                 int value = Integer.parseInt(event.getText());
                 handleInput(value, event.getSource());
-                // czyszczenie pola (wpisując 0 lub backspace)
+                // Czyszczenie pola (wpisując 0 lub backspace)
             } else if (event.getCode() == KeyCode.BACK_SPACE) {
                 handleInput(0, event.getSource());
             } else {
-                ((TextField)event.getSource()).setText("");
+                ((javafx.scene.control.TextField)event.getSource()).setText("");
             }
         }
-
         event.consume();
     }
 
     /**
-     * @param value  expected to be an integer from 0-9, inclusive
-     * @param source the textfield object that was clicked.
+     * @param value  integer 0-9
+     * @param source kliknięte pole
      */
     private void handleInput(int value, Object source) {
         listener.onSudokuInput(

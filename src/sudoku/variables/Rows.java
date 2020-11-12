@@ -1,13 +1,14 @@
 package sudoku.variables;
 
 /**
- * This enum exists to provide better legibility for the logic required to check if each Square in the
- * sudoku puzzle contains a valid value. See GameLogic.java for usage.
+ * Enum zawierający oznaczenie wierszy w pojedynczym kwadracie
+ * Square jest złożony z 9 pól 3x3:
+ * 3 x TOP
+ * 3 x MIDDLE
+ * 3 x BOTTOM
+ * Na planszy jest łącznie 9 takich kwadratów
  *
- * Top, Middle, and Bottom rows for each square (a square is comprised of 3x3 "tiles", with 9 squares total in a
- * sudoku puzzle).
- *
- * The values represent the Y coordinates of each tile.
+ * Enum zapewnia większą czytelność przy walidacji wpisanych wartości (cyfry od 1 do 9) w pojedynczym kwadracie
  */
 public enum Rows {
     TOP,
