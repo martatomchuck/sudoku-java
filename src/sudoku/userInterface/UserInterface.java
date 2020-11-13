@@ -3,6 +3,7 @@ package sudoku.userInterface;
 import sudoku.variables.GameState;
 import sudoku.variables.Coordinates;
 import sudoku.gameLogic.SudokuGame;
+
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -32,7 +33,8 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
     private final Group root;
 
     // ZŁA PRAKTYKA: tworzenie zmiennej dla każdego pojedynczego pola na planszy (81 zmiennych)
-    // DOBRA PRAKTYKA: HashMap i współrzędne x i y (przy pomocy funkcji HashMap współrzędne x i y mapowane są na odpowiednie pola tekstowe na planszy)
+    // DOBRA PRAKTYKA: HashMap i współrzędne x i y (przy pomocy funkcji HashMap współrzędne x i y
+    // mapowane są na odpowiednie pola tekstowe na planszy)
     //
     // <Key, Value> -> <Coordinates, Integer>
     private HashMap<Coordinates, SudokuTextField> textFieldCoordinates;
@@ -157,7 +159,6 @@ public class UserInterface implements UserInterfaceContract.View, EventHandler<K
 
         tile.setBackground(Background.EMPTY);
     }
-
 
     /**
      * Metoda służąca wyrysowaniu linii na planszy

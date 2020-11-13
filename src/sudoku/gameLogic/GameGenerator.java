@@ -90,18 +90,12 @@ class GameGenerator {
     }
 
     /**
-     * The purpose of this function is to take a game which has already been solved (and thus proven to be solvable),
-     * and randomly assign a certain number of tiles to be equal to 0. It appears that there is no straight
-     * forward way to check if a puzzle is still solvable after removing the tiles, beyond using another algorithm
-     * to attempt to re-solve the problem.
-     *
-     * 1. Copy values of solvedGame to a new Array (make into a helper)
-     * 2. Remove 20 Values randomly from the new Array.
-     * 3. Test the new Array for solvablility.
-     * 4a. Solveable -> return new Array
-     * 4b. return to step 1
+     * 1. Skopiuj wartości z solvedGame do nowej tablicy
+     * 2. Usuń 20 losowych wartości z nowej tablicy
+     * 3. Przetestuj rozwiązywalność nowej tablicy
+     * 4a. Jeśli rozwiązywalna -> zwróc nową tablicę
+     * 4b. Jeśli nierozwiązywalna - > wróc do krok 1
      * @param solvedGame
-     * @return
      */
     private static int[][] unsolveGame(int[][] solvedGame) {
         Random random = new Random(System.currentTimeMillis());
@@ -130,7 +124,7 @@ class GameGenerator {
 
             int[][] toBeSolved = new int[GRID][GRID];
             SudokuTools.copySudokuArrayValues(solvableArray, toBeSolved);
-            // sprawdź czy wynik jest rozwiązywalny
+            // Sprawdź czy wynik jest rozwiązywalny
             solvable = SudokuSolver.puzzleIsSolvable(toBeSolved);
         }
         return solvableArray;
